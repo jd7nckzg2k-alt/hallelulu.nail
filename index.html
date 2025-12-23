@@ -3,307 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Halle Lulu Nail 計算機</title>
+    <title>Halle Lulu Nail 預算計算機</title>
     <style>
         :root {
-            --bg-gray: #f8f8f8;
-            --card-bg: #ffffff;
-            --primary-brown: #a68b7c;
+            --bg-color: #f8f8f8;
+            --primary-brown: #8c7e74;
+            --light-cream: #eeeae4;
+            --card-white: #ffffff;
             --text-dark: #4a4a4a;
-            --text-light: #9b9b9b;
-            --border-color: #efefef;
+            --text-gray: #a1a1a1;
+            --accent-pink: #f2ede9;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: -apple-system, sans-serif; 
-            background-color: var(--bg-gray); 
+            font-family: -apple-system, "Noto Sans TC", sans-serif; 
+            background-color: var(--bg-color); 
             color: var(--text-dark); 
-            margin: 0; padding-bottom: 120px; 
+            margin: 0; padding: 10px 10px 120px 10px;
+            overflow-x: hidden;
         }
 
         /* Header */
         .header {
             display: flex; justify-content: center; align-items: center;
-            padding: 20px; position: relative; background: var(--bg-gray);
+            padding: 15px; position: relative;
         }
-        .header h1 { font-size: 1.2rem; letter-spacing: 4px; color: #333; margin: 0; font-weight: 600; }
-        .settings-icon { position: absolute; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; }
+        .header h1 { font-size: 1.2rem; letter-spacing: 4px; margin: 0; font-weight: 500; color: #333; }
+        .settings-icon { position: absolute; right: 10px; font-size: 20px; color: var(--text-gray); cursor: pointer; }
 
-        .container { padding: 0 15px; }
+        /* Grid Layout */
+        .grid-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .grid-col { flex: 1; min-width: 0; }
+        .section-label { font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; padding-left: 2px; }
 
-        /* 雙欄佈局 */
-        .grid-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .grid-col { flex: 1; }
-
-        .section-label { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #333; }
-
-        /* 卡片樣式 */
+        /* Card Base */
         .card {
-            background: var(--card-bg); border-radius: 8px; padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03); height: 100%;
+            background: var(--card-white); border-radius: 12px; padding: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); height: 100%;
         }
 
-        /* 基礎底價列表 */
-        .base-list { list-style: none; padding: 0; margin: 0; }
-        .base-item { 
-            padding: 8px 10px; margin-bottom: 4px; border-radius: 4px; 
-            font-size: 13px; cursor: pointer; border: 1px solid transparent;
+        /* 1. 基礎底價 List */
+        .base-list { display: flex; flex-direction: column; gap: 2px; }
+        .base-item {
+            padding: 8px 10px; font-size: 13px; border-radius: 6px;
+            cursor: pointer; transition: 0.2s; color: #666; border: 1px solid transparent;
         }
-        .base-item.active { background: #f2ede9; color: var(--primary-brown); border-color: #e5ddd5; }
+        .base-item.active { background-color: var(--accent-pink); color: var(--primary-brown); font-weight: bold; border-color: #d1c5bc; }
 
-        /* 造型按鈕 */
-        .tool-chip {
-            display: inline-block; padding: 5px 12px; background: #fff;
-            border: 1px solid #ddd; border-radius: 20px; font-size: 12px;
-            margin: 0 4px 8px 0; color: #666; cursor: pointer;
+        /* 2. 快選列 Toolbar */
+        .toolbar-scroll { overflow-x: auto; white-space: nowrap; padding-bottom: 5px; margin-bottom: 10px; }
+        .chip {
+            display: inline-block; padding: 6px 14px; border: 1px solid #ddd; border-radius: 20px;
+            font-size: 12px; background: #fff; color: #666; cursor: pointer; margin-right: 4px;
         }
 
-        /* 加購區與動態列 */
-        .dynamic-row {
-            display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
-            border-bottom: 1px solid var(--border-color); padding-bottom: 8px;
+        /* 3. 動態造型列 */
+        .art-row {
+            display: grid; grid-template-columns: 1fr 50px 75px 20px;
+            gap: 5px; align-items: center; padding: 8px 0; border-bottom: 1px solid #f2f2f2;
         }
-        .dynamic-row input { border: none; font-size: 13px; outline: none; width: 100%; }
-        .qty-group { display: flex; align-items: center; background: #f8f8f8; border-radius: 4px; padding: 2px 5px; }
-        .qty-btn { width: 20px; text-align: center; cursor: pointer; font-weight: bold; }
-
-        /* 卸甲按鈕組 */
-        .removal-group { display: flex; gap: 5px; margin-bottom: 10px; }
-        .rem-btn { 
-            flex: 1; padding: 6px; font-size: 11px; border: 1px solid #ddd; 
-            background: #fff; border-radius: 15px; color: #888;
+        .art-row input { border: none; font-size: 13px; outline: none; width: 100%; color: #444; background: transparent; }
+        .qty-box {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f8f8f8; border-radius: 6px; padding: 2px 6px;
         }
-        .rem-btn.active { background: #f2ede9; border-color: var(--primary-brown); color: var(--primary-brown); }
+        .qty-btn { cursor: pointer; width: 18px; text-align: center; font-weight: bold; font-size: 14px; color: var(--primary-brown); }
 
-        /* 底部調整 */
-        .adj-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 14px; }
-        .adj-input { width: 80px; text-align: right; border: none; border-bottom: 1px solid #ddd; padding: 2px; }
+        /* 4. 卸甲服務 */
+        .btn-group { display: flex; gap: 4px; margin-bottom: 10px; }
+        .btn-group button {
+            flex: 1; padding: 7px 0; border: 1px solid #eee; background: #fff;
+            border-radius: 20px; font-size: 11px; color: #999; cursor: pointer;
+        }
+        .btn-group button.active { background: var(--accent-pink); border-color: #d1c5bc; color: var(--primary-brown); }
 
-        /* 底部懸浮固定欄 (仿圖片) */
-        .footer-bar {
-            position: fixed; bottom: 0; width: 100%; background: #fff;
-            padding: 15px 20px; display: flex; align-items: center;
+        /* Footer */
+        .footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 95px;
+            background: #fff; display: flex; align-items: center; padding: 0 20px;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 1000;
         }
         .copy-btn {
-            background: #eeeae4; color: #8c7e74; border: none; padding: 12px 25px;
-            border-radius: 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; flex: 1;
+            flex: 1.2; background: var(--light-brown); background-color: #eeeae4; color: var(--primary-brown);
+            border: none; border-radius: 12px; height: 50px; font-size: 15px;
+            display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500;
         }
-        .total-container { text-align: right; padding-left: 20px; }
-        .total-label { font-size: 12px; color: #999; }
-        .total-amount { font-size: 28px; font-weight: bold; color: #333; line-height: 1; }
+        .total-area { flex: 1; text-align: right; }
+        .total-label { font-size: 11px; color: var(--text-gray); }
+        .total-amount { font-size: 28px; font-weight: bold; color: #333; }
 
-        /* 明細彈窗 (Bottom Sheet) */
+        /* Modal Bottom Sheet */
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:1500; }
         .modal {
             position: fixed; bottom: -100%; left: 0; width: 100%; background: #fff;
-            z-index: 2000; transition: 0.3s; border-radius: 20px 20px 0 0; padding: 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 2000; transition: 0.3s; border-radius: 25px 25px 0 0; padding: 25px;
         }
         .modal.show { bottom: 0; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:1500; }
 
+        /* Admin Setting Drawer */
+        .drawer {
+            position: fixed; top: 0; right: -100%; width: 85%; height: 100%;
+            background: #fff; z-index: 3000; transition: 0.3s; padding: 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1); overflow-y: auto;
+        }
+        .drawer.open { right: 0; }
     </style>
-   <link rel="apple-touch-icon" href="icon2.jpg">
+    <link rel="apple-touch-icon" href="icon2.jpg">
 <meta name="apple-mobile-web-app-title" content="Halle Lulu Nail">
 <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
 
     <div class="header">
-        <h1>HALLE LULU</h1>
-        <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
+        <h1>HALLE LULU NAIL</h1>
+        <div class="settings-icon" onclick="toggleDrawer(true)">⚙️</div>
     </div>
 
-    <div class="container">
-        <div class="grid-row">
-            <div class="grid-col">
-                <div class="section-label">基礎底價</div>
-                <div class="card">
-                    <ul class="base-list" id="baseList">
-                        <li class="base-item" data-price="600" onclick="selectBase(this)">單色/跳色 $600</li>
-                        <li class="base-item" data-price="700" onclick="selectBase(this)">貓眼/鏡面 $700</li>
-                        <li class="base-item" data-price="800" onclick="selectBase(this)">漸層/法式 $800</li>
-                        <li class="base-item" data-price="850" onclick="selectBase(this)">造型款式 $850</li>
-                        <li class="base-item" data-price="500" onclick="selectBase(this)">基礎保養 $500</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="grid-col">
-                <div class="section-label">造型快速列</div>
-                <div class="card">
-                    <div class="tool-chip" onclick="addArt('手繪', 50)">手繪+</div>
-                    <div class="tool-chip" onclick="addArt('滿鑽', 150)">滿鑽+</div>
-                    <div class="tool-chip" onclick="addArt('暈染', 80)">暈染+</div>
-                    <div class="tool-chip" onclick="addArt('貼紙', 25)">貼紙+</div>
-                    <div class="tool-chip" onclick="addArt('延甲', 100)">延甲+</div>
-                </div>
+    <div class="grid-row">
+        <div class="grid-col">
+            <div class="section-label">基礎底價</div>
+            <div class="card">
+                <div class="base-list" id="baseContainer">
+                    </div>
             </div>
         </div>
-
-        <div class="grid-row">
-            <div class="grid-col">
-                <div class="section-label">造型加選</div>
-                <div class="card" id="artContainer">
+        <div class="grid-col">
+            <div class="section-label">造型快選列</div>
+            <div class="card">
+                <div id="quickChips">
                     </div>
-            </div>
-            <div class="grid-col">
-                <div class="section-label">卸甲服務</div>
-                <div class="card">
-                    <div class="removal-group">
-                        <button class="rem-btn active" onclick="setRem(0, this)">無</button>
-                        <button class="rem-btn" onclick="setRem(100, this)">本店</button>
-                        <button class="rem-btn" onclick="setRem(200, this)">他店</button>
-                    </div>
-                    <div style="font-size: 11px; color: #999; margin-bottom: 5px;">大鑽卸除 (+$50/指)</div>
-                    <div class="qty-group" style="width: fit-content;">
-                        <div class="qty-btn" onclick="changeExtra(-1)">-</div>
-                        <span id="extraRemQty" style="margin: 0 10px;">0</span>
-                        <div class="qty-btn" onclick="changeExtra(1)">+</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-label">其他</div>
-        <div class="card">
-            <div class="adj-row">
-                <span>預收定金</span>
-                <input type="number" id="deposit" class="adj-input" value="0" oninput="calc()">
-            </div>
-            <div class="adj-row">
-                <span>優惠折扣</span>
-                <input type="number" id="discount" class="adj-input" value="0" oninput="calc()">
             </div>
         </div>
     </div>
 
-    <div class="footer-bar">
-        <button class="copy-btn" onclick="copyText()">
-            📋 複製文字
+    <div class="grid-row">
+        <div class="grid-col" style="flex: 1.5;">
+            <div class="section-label">造型加購項目</div>
+            <div class="card" id="artList" style="min-height: 100px;">
+                </div>
+        </div>
+        <div class="grid-col">
+            <div class="section-label">卸甲服務</div>
+            <div class="card">
+                <div class="btn-group" id="remGroup">
+                    <button class="active" onclick="setRemoval(0, this)">無</button>
+                    <button onclick="setRemoval(100, this)">本店</button>
+                    <button onclick="setRemoval(200, this)">他店</button>
+                </div>
+                <div style="font-size: 11px; color: #aaa; margin-bottom: 5px;">大鑽卸除 (+$50/指)</div>
+                <div class="qty-box" style="width: 70px;">
+                    <div class="qty-btn" onclick="chgExtraRem(-1)">-</div>
+                    <span id="extraRemCount">0</span>
+                    <div class="qty-btn" onclick="chgExtraRem(1)">+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">其他調整</div>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px;">預收定金 / 優惠折抵</span>
+            <input type="number" id="adjAmount" placeholder="如 -100" style="width: 100px; text-align: right; border: none; border-bottom: 1px solid #ddd; font-size: 14px;" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="footer">
+        <button class="copy-btn" onclick="copyBill()">
+            <span>📋</span> 複製文字
         </button>
-        <div class="total-container" onclick="showDetail()">
-            <div class="total-label">看明細 > 尾款</div>
-            <div class="total-amount" id="finalTotal">$0</div>
+        <div class="total-area" onclick="showModal()">
+            <div class="total-label">👁️ 查看明細 > 應付</div>
+            <div class="total-amount" id="displayTotal">$0</div>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div class="overlay" id="overlay" onclick="hideModal()"></div>
     <div class="modal" id="modal">
-        <h3 style="margin-top:0">消費明細</h3>
-        <div id="detailContent" style="font-size: 14px; color: #666; line-height: 1.8;"></div>
-        <button onclick="closeModal()" style="width:100%; margin-top:20px; border:none; background:#a68b7c; color:#fff; padding:12px; border-radius:8px;">關閉</button>
+        <h3 style="text-align: center; margin-top: 0; font-weight: 500;">消費明細核對</h3>
+        <div id="billContent" style="font-size: 14px; line-height: 2; color: #666; border-top: 1px dashed #eee; padding-top: 15px;"></div>
+        <button onclick="hideModal()" style="width:100%; margin-top:20px; padding:12px; border:none; background:var(--primary-brown); color:#fff; border-radius:10px;">確認關閉</button>
+    </div>
+
+    <div class="drawer" id="drawer">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin:0">後台設定</h3>
+            <span onclick="toggleDrawer(false)" style="font-size: 24px;">✕</span>
+        </div>
+        <p style="font-size: 12px; color: #999;">修改後即時生效於主介面</p>
+        
+        <h4>1. 基礎底價管理</h4>
+        <textarea id="baseDataInput" style="width:100%; height:100px; font-size:12px;"></textarea>
+        
+        <h4>2. 快選按鈕管理</h4>
+        <textarea id="chipDataInput" style="width:100%; height:100px; font-size:12px;"></textarea>
+        
+        <button onclick="saveSettings()" style="width:100%; margin-top:20px; padding:15px; background:#4a4a4a; color:#fff; border:none; border-radius:8px;">儲存並套用</button>
     </div>
 
     <script>
-        let basePrice = 0;
-        let baseName = '';
-        let remPrice = 0;
-        let extraRemCount = 0;
+        // 初始化數據
+        let config = {
+            base: [
+                {name: "單色/跳色", price: 600},
+                {name: "貓眼/鏡面", price: 700},
+                {name: "漸層/法式", price: 800},
+                {name: "造型款式", price: 850},
+                {name: "基礎保養", price: 500}
+            ],
+            chips: [
+                {name: "手繪", price: 50},
+                {name: "滿鑽", price: 150},
+                {name: "暈染", price: 80},
+                {name: "貼紙", price: 25},
+                {name: "延甲", price: 100}
+            ]
+        };
 
-        function selectBase(el) {
+        let currentBase = { name: "", price: 0 };
+        let removalFee = 0;
+        let extraRem = 0;
+
+        // 初始化渲染
+        function init() {
+            renderBase();
+            renderChips();
+            document.getElementById('baseDataInput').value = JSON.stringify(config.base, null, 2);
+            document.getElementById('chipDataInput').value = JSON.stringify(config.chips, null, 2);
+        }
+
+        function renderBase() {
+            const container = document.getElementById('baseContainer');
+            container.innerHTML = config.base.map(item => 
+                `<div class="base-item" data-price="${item.price}" onclick="selectBase(this, '${item.name}')">${item.name} $${item.price}</div>`
+            ).join('');
+        }
+
+        function renderChips() {
+            const container = document.getElementById('quickChips');
+            container.innerHTML = config.chips.map(item => 
+                `<div class="chip" onclick="addArtRow('${item.name}', ${item.price})">${item.name}+</div>`
+            ).join('');
+        }
+
+        function selectBase(el, name) {
             document.querySelectorAll('.base-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
-            basePrice = parseInt(el.dataset.price);
-            baseName = el.innerText.split(' $')[0];
-            calc();
+            currentBase = { name: name, price: parseInt(el.dataset.price) };
+            calculate();
         }
 
-        function addArt(name, price) {
-            const div = document.createElement('div');
-            div.className = 'dynamic-row';
-            div.innerHTML = `
+        function addArtRow(name, price) {
+            const container = document.getElementById('artList');
+            const row = document.createElement('div');
+            row.className = 'art-row';
+            row.innerHTML = `
                 <input type="text" value="${name}">
-                <input type="number" value="${price}" style="width:40px; text-align:right;" oninput="calc()">
-                <div class="qty-group">
-                    <div class="qty-btn" onclick="changeQty(this, -1)">-</div>
-                    <span class="qval" style="margin:0 5px">1</span>
-                    <div class="qty-btn" onclick="changeQty(this, 1)">+</div>
+                <input type="number" value="${price}" onfocus="setupInput(this)" oninput="calculate()">
+                <div class="qty-box">
+                    <div class="qty-btn" onclick="chgQty(this, -1)">-</div>
+                    <span class="qv">1</span>
+                    <div class="qty-btn" onclick="chgQty(this, 1)">+</div>
                 </div>
-                <span style="color:#ccc" onclick="this.parentElement.remove();calc()">✕</span>
+                <div style="color:#ddd; font-size:12px; cursor:pointer;" onclick="this.parentElement.remove();calculate();">✕</div>
             `;
-            document.getElementById('artContainer').appendChild(div);
-            calc();
+            container.appendChild(row);
+            calculate();
         }
 
-        function changeQty(btn, delta) {
-            let s = btn.parentElement.querySelector('.qval');
+        function setupInput(el) {
+            el.select();
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function chgQty(btn, delta) {
+            let s = btn.parentElement.querySelector('.qv');
             let v = parseInt(s.innerText) + delta;
             if (v < 1) v = 1;
             s.innerText = v;
-            calc();
+            calculate();
         }
 
-        function setRem(price, btn) {
-            remPrice = price;
-            document.querySelectorAll('.rem-btn').forEach(b => b.classList.remove('active'));
+        function setRemoval(fee, btn) {
+            removalFee = fee;
+            document.querySelectorAll('#remGroup button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            calc();
+            calculate();
         }
 
-        function changeExtra(delta) {
-            extraRemCount += delta;
-            if (extraRemCount < 0) extraRemCount = 0;
-            document.getElementById('extraRemQty').innerText = extraRemCount;
-            calc();
+        function chgExtraRem(delta) {
+            extraRem += delta;
+            if (extraRem < 0) extraRem = 0;
+            document.getElementById('extraRemCount').innerText = extraRem;
+            calculate();
         }
 
-        function calc() {
-            let total = basePrice;
-            document.querySelectorAll('.dynamic-row').forEach(row => {
+        function calculate() {
+            let total = currentBase.price;
+            document.querySelectorAll('.art-row').forEach(row => {
                 let p = parseInt(row.querySelectorAll('input')[1].value) || 0;
-                let q = parseInt(row.querySelector('.qval').innerText);
+                let q = parseInt(row.querySelector('.qv').innerText);
                 total += (p * q);
             });
-            total += remPrice + (extraRemCount * 50);
+            total += removalFee + (extraRem * 50);
+            total += (parseInt(document.getElementById('adjAmount').value) || 0);
             
-            let deposit = parseInt(document.getElementById('deposit').value) || 0;
-            let discount = parseInt(document.getElementById('discount').value) || 0;
-            
-            let final = total - deposit - discount;
-            document.getElementById('finalTotal').innerText = `$${final}`;
-            return { total, deposit, discount, final };
+            document.getElementById('displayTotal').innerText = `$${total}`;
+            return total;
         }
 
-        function getBill() {
-            let res = `【Halle Lulu Nail 明細】\n`;
-            if (baseName) res += `項目: ${baseName} $${basePrice}\n`;
-            document.querySelectorAll('.dynamic-row').forEach(row => {
+        function getBillText() {
+            let bill = `✨ Halle Lulu Nail 明細 ✨\n`;
+            if (currentBase.name) bill += `● ${currentBase.name}: $${currentBase.price}\n`;
+            
+            document.querySelectorAll('.art-row').forEach(row => {
                 let n = row.querySelectorAll('input')[0].value;
                 let p = row.querySelectorAll('input')[1].value;
-                let q = row.querySelector('.qval').innerText;
-                res += `${n} x${q}: $${p*q}\n`;
+                let q = row.querySelector('.qv').innerText;
+                bill += `● ${n} x${q}: $${p * q}\n`;
             });
-            if (remPrice > 0) res += `卸甲: $${remPrice}\n`;
-            if (extraRemCount > 0) res += `大鑽卸除 x${extraRemCount}: $${extraRemCount*50}\n`;
+
+            if (removalFee > 0) bill += `● 卸甲服務: $${removalFee}\n`;
+            if (extraRem > 0) bill += `● 大鑽飾卸除 x${extraRem}: $${extraRem * 50}\n`;
             
-            let data = calc();
-            if (data.discount > 0) res += `優惠: -$${data.discount}\n`;
-            if (data.deposit > 0) res += `已付定金: -$${data.deposit}\n`;
-            res += `------------------\n`;
-            res += `應付尾款: $${data.final}`;
-            return res;
+            let adj = parseInt(document.getElementById('adjAmount').value) || 0;
+            if (adj !== 0) bill += `● 調整/優惠: $${adj}\n`;
+            
+            bill += `------------------\n💰 應付總額: ${document.getElementById('displayTotal').innerText}`;
+            return bill;
         }
 
-        function showDetail() {
-            document.getElementById('detailContent').innerText = getBill();
+        function showModal() {
+            document.getElementById('billContent').innerText = getBillText();
             document.getElementById('overlay').style.display = 'block';
             setTimeout(() => document.getElementById('modal').classList.add('show'), 10);
         }
 
-        function closeModal() {
+        function hideModal() {
             document.getElementById('modal').classList.remove('show');
             setTimeout(() => document.getElementById('overlay').style.display = 'none', 300);
         }
 
-        function copyText() {
-            navigator.clipboard.writeText(getBill());
-            alert('已複製明細內容');
+        function copyBill() {
+            const text = getBillText();
+            navigator.clipboard.writeText(text).then(() => alert('明細已複製到剪貼簿！'));
         }
 
-        function toggleSettings() {
-            alert('後台設定功能：您可以修改代碼中的 base-list 來永久更改價格。');
+        function toggleDrawer(show) {
+            const d = document.getElementById('drawer');
+            if(show) d.classList.add('open');
+            else d.classList.remove('open');
         }
+
+        function saveSettings() {
+            try {
+                config.base = JSON.parse(document.getElementById('baseDataInput').value);
+                config.chips = JSON.parse(document.getElementById('chipDataInput').value);
+                renderBase();
+                renderChips();
+                toggleDrawer(false);
+                alert('設定已更新！');
+            } catch(e) {
+                alert('JSON 格式錯誤，請檢查符號。');
+            }
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>

@@ -1,370 +1,309 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <title>HalleLulu·Nail</title>
-   <style>
-       :root {
-           --bg-color: #fcfaf2;
-           --primary-brown: #a68b7c;
-           --accent-cream: #f4eee8;
-           --text-main: #5d544f;
-           --white: #ffffff;
-           --shadow: 0 4px 12px rgba(166, 139, 124, 0.15);
-       }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Halle Lulu Nail 計算機</title>
+    <style>
+        :root {
+            --bg-gray: #f8f8f8;
+            --card-bg: #ffffff;
+            --primary-brown: #a68b7c;
+            --text-dark: #4a4a4a;
+            --text-light: #9b9b9b;
+            --border-color: #efefef;
+        }
 
-       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-       body {
-           font-family: -apple-system, "Noto Sans TC", sans-serif;
-           background-color: var(--bg-color);
-           color: var(--text-main);
-           margin: 0; padding: 20px 0 100px 0;
-           line-height: 1.6;
-       }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background-color: var(--bg-gray); 
+            color: var(--text-dark); 
+            margin: 0; padding-bottom: 120px; 
+        }
 
-       .container { width: 92%; max-width: 500px; margin: 0 auto; }
-       h1 { text-align: center; font-weight: 300; letter-spacing: 2px; color: var(--primary-brown); margin-bottom: 25px; }
+        /* Header */
+        .header {
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; position: relative; background: var(--bg-gray);
+        }
+        .header h1 { font-size: 1.2rem; letter-spacing: 4px; color: #333; margin: 0; font-weight: 600; }
+        .settings-icon { position: absolute; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; }
 
-       /* 卡片樣式 */
-       .card {
-           background: var(--white);
-           border-radius: 20px;
-           padding: 20px;
-           margin-bottom: 20px;
-           box-shadow: var(--shadow);
-       }
+        .container { padding: 0 15px; }
 
-       .section-title { font-size: 1rem; font-weight: bold; margin-bottom: 15px; border-left: 4px solid var(--primary-brown); padding-left: 10px; }
+        /* 雙欄佈局 */
+        .grid-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .grid-col { flex: 1; }
 
-       select, input {
-           width: 100%;
-           padding: 12px;
-           border: 1px solid var(--accent-cream);
-           border-radius: 10px;
-           font-size: 16px; /* 防止 iOS 縮放 */
-           background: var(--bg-color);
-           color: var(--text-main);
-       }
+        .section-label { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #333; }
 
-       /* 橫向滾動工具列 */
-       .toolbar-wrapper { overflow-x: auto; white-space: nowrap; margin-bottom: 15px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
-       .tool-btn {
-           display: inline-block;
-           padding: 8px 18px;
-           background: var(--accent-cream);
-           border-radius: 50px;
-           margin-right: 8px;
-           font-size: 14px;
-           cursor: pointer;
-           border: 1px solid transparent;
-           transition: 0.3s;
-       }
-       .tool-btn:active { background: var(--primary-brown); color: white; }
+        /* 卡片樣式 */
+        .card {
+            background: var(--card-bg); border-radius: 8px; padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); height: 100%;
+        }
 
-       /* 動態造型列 */
-       .item-row {
-           display: grid;
-           grid-template-columns: 2fr 1fr 1fr auto;
-           gap: 8px;
-           align-items: center;
-           margin-bottom: 10px;
-           background: #faf9f7;
-           padding: 10px;
-           border-radius: 12px;
-       }
-       .qty-control { display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 8px; border: 1px solid #eee; }
-       .qty-btn { width: 30px; text-align: center; cursor: pointer; font-weight: bold; font-size: 18px; color: var(--primary-brown); }
-       .remove-btn { color: #cc8b8b; font-size: 20px; padding: 0 5px; cursor: pointer; }
+        /* 基礎底價列表 */
+        .base-list { list-style: none; padding: 0; margin: 0; }
+        .base-item { 
+            padding: 8px 10px; margin-bottom: 4px; border-radius: 4px; 
+            font-size: 13px; cursor: pointer; border: 1px solid transparent;
+        }
+        .base-item.active { background: #f2ede9; color: var(--primary-brown); border-color: #e5ddd5; }
 
-       /* 卸甲按鈕組 */
-       .btn-group { display: flex; gap: 5px; }
-       .btn-group button {
-           flex: 1; padding: 10px; border: 1px solid var(--accent-cream);
-           background: white; border-radius: 8px; font-size: 14px; cursor: pointer;
-       }
-       .btn-group button.active { background: var(--primary-brown); color: white; border-color: var(--primary-brown); }
+        /* 造型按鈕 */
+        .tool-chip {
+            display: inline-block; padding: 5px 12px; background: #fff;
+            border: 1px solid #ddd; border-radius: 20px; font-size: 12px;
+            margin: 0 4px 8px 0; color: #666; cursor: pointer;
+        }
 
-       /* 底部懸浮欄 */
-       .sticky-footer {
-           position: fixed; bottom: 0; width: 100%; background: var(--white);
-           padding: 15px 20px; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
-           display: flex; justify-content: space-between; align-items: center; z-index: 100;
-       }
-       .total-price { font-size: 1.4rem; font-weight: bold; color: var(--primary-brown); }
-       .footer-btns { display: flex; gap: 10px; }
-       .main-btn { background: var(--primary-brown); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-size: 14px; }
+        /* 加購區與動態列 */
+        .dynamic-row {
+            display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 8px;
+        }
+        .dynamic-row input { border: none; font-size: 13px; outline: none; width: 100%; }
+        .qty-group { display: flex; align-items: center; background: #f8f8f8; border-radius: 4px; padding: 2px 5px; }
+        .qty-btn { width: 20px; text-align: center; cursor: pointer; font-weight: bold; }
 
-       /* Modal Bottom Sheet */
-       .modal-overlay {
-           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-           background: rgba(0,0,0,0.4); display: none; z-index: 200;
-       }
-       .modal-content {
-           position: fixed; bottom: 0; width: 100%; background: white;
-           border-radius: 25px 25px 0 0; padding: 30px 20px;
-           transform: translateY(100%); transition: transform 0.3s ease;
-       }
-       .modal-content.show { transform: translateY(0); }
-       .bill-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
+        /* 卸甲按鈕組 */
+        .removal-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        .rem-btn { 
+            flex: 1; padding: 6px; font-size: 11px; border: 1px solid #ddd; 
+            background: #fff; border-radius: 15px; color: #888;
+        }
+        .rem-btn.active { background: #f2ede9; border-color: var(--primary-brown); color: var(--primary-brown); }
 
-       /* 後台設定 */
-       .admin-section { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; opacity: 0.6; }
-       details summary { cursor: pointer; color: var(--primary-brown); margin-bottom: 10px; }
-   </style>
+        /* 底部調整 */
+        .adj-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 14px; }
+        .adj-input { width: 80px; text-align: right; border: none; border-bottom: 1px solid #ddd; padding: 2px; }
+
+        /* 底部懸浮固定欄 (仿圖片) */
+        .footer-bar {
+            position: fixed; bottom: 0; width: 100%; background: #fff;
+            padding: 15px 20px; display: flex; align-items: center;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 1000;
+        }
+        .copy-btn {
+            background: #eeeae4; color: #8c7e74; border: none; padding: 12px 25px;
+            border-radius: 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; flex: 1;
+        }
+        .total-container { text-align: right; padding-left: 20px; }
+        .total-label { font-size: 12px; color: #999; }
+        .total-amount { font-size: 28px; font-weight: bold; color: #333; line-height: 1; }
+
+        /* 明細彈窗 (Bottom Sheet) */
+        .modal {
+            position: fixed; bottom: -100%; left: 0; width: 100%; background: #fff;
+            z-index: 2000; transition: 0.3s; border-radius: 20px 20px 0 0; padding: 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+        .modal.show { bottom: 0; }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; z-index:1500; }
+
+    </style>
    <link rel="apple-touch-icon" href="icon2.jpg">
-<meta name="apple-mobile-web-app-title" content="HalleLulu·Nail">
+<meta name="apple-mobile-web-app-title" content="Halle Lulu Nail">
 <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
 
-<div class="container">
-   <h1>Halle Lulu Nail</h1>
+    <div class="header">
+        <h1>HALLE LULU</h1>
+        <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
+    </div>
 
-   <div class="card">
-       <div class="section-title">基礎底色 / 保養</div>
-       <select id="baseService" onchange="calculate()">
-           <option value="0" data-name="無">請選擇服務項目</option>
-           <optgroup label="凝膠指甲 (手部)">
-               <option value="500" data-name="手部-透明建甲">手部-透明建甲 $500</option>
-               <option value="600" data-name="手部-單色/跳色">手部-單色/跳色 $600</option>
-               <option value="700" data-name="手部-貓眼/鏡面">手部-貓眼/鏡面 $700</option>
-               <option value="800" data-name="手部-漸層/法式">手部-漸層/法式 $800</option>
-               <option value="850" data-name="手部-造型款式">手部-造型款式 $850起</option>
-           </optgroup>
-           <optgroup label="凝膠指甲 (足部)">
-               <option value="600" data-name="足部-透明建甲">足部-透明建甲 $600</option>
-               <option value="700" data-name="足部-單色/跳色">足部-單色/跳色 $700</option>
-               <option value="800" data-name="足部-貓眼/鏡面">足部-貓眼/鏡面 $800</option>
-               <option value="900" data-name="足部-漸層/法式">足部-漸層/法式 $900</option>
-               <option value="950" data-name="足部-造型款式">足部-造型款式 $950起</option>
-           </optgroup>
-           <optgroup label="保養">
-               <option value="300" data-name="手部-微護理">手部-微護理 $300</option>
-               <option value="500" data-name="手部-基礎保養">手部-基礎保養 $500</option>
-               <option value="400" data-name="足部-微護理">足部-微護理 $400</option>
-               <option value="600" data-name="足部-基礎保養">足部-基礎保養 $600</option>
-           </optgroup>
-       </select>
-   </div>
+    <div class="container">
+        <div class="grid-row">
+            <div class="grid-col">
+                <div class="section-label">基礎底價</div>
+                <div class="card">
+                    <ul class="base-list" id="baseList">
+                        <li class="base-item" data-price="600" onclick="selectBase(this)">單色/跳色 $600</li>
+                        <li class="base-item" data-price="700" onclick="selectBase(this)">貓眼/鏡面 $700</li>
+                        <li class="base-item" data-price="800" onclick="selectBase(this)">漸層/法式 $800</li>
+                        <li class="base-item" data-price="850" onclick="selectBase(this)">造型款式 $850</li>
+                        <li class="base-item" data-price="500" onclick="selectBase(this)">基礎保養 $500</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid-col">
+                <div class="section-label">造型快速列</div>
+                <div class="card">
+                    <div class="tool-chip" onclick="addArt('手繪', 50)">手繪+</div>
+                    <div class="tool-chip" onclick="addArt('滿鑽', 150)">滿鑽+</div>
+                    <div class="tool-chip" onclick="addArt('暈染', 80)">暈染+</div>
+                    <div class="tool-chip" onclick="addArt('貼紙', 25)">貼紙+</div>
+                    <div class="tool-chip" onclick="addArt('延甲', 100)">延甲+</div>
+                </div>
+            </div>
+        </div>
 
-   <div class="card">
-       <div class="section-title">造型加購</div>
-       <div class="toolbar-wrapper">
-           <div class="tool-btn" onclick="addItem('手繪簡易', 25)">手繪(簡) $25</div>
-           <div class="tool-btn" onclick="addItem('手繪卡通', 150)">手繪(卡) $150</div>
-           <div class="tool-btn" onclick="addItem('滿鑽(單指)', 150)">滿鑽 $150</div>
-           <div class="tool-btn" onclick="addItem('貼紙(精緻)', 50)">貼紙 $50</div>
-           <div class="tool-btn" onclick="addItem('多層次暈染', 80)">暈染 $80</div>
-           <div class="tool-btn" onclick="addItem('造型刷染', 50)">刷染 $50</div>
-           <div class="tool-btn" onclick="addItem('延甲', 100)">延甲 $100</div>
-       </div>
+        <div class="grid-row">
+            <div class="grid-col">
+                <div class="section-label">造型加選</div>
+                <div class="card" id="artContainer">
+                    </div>
+            </div>
+            <div class="grid-col">
+                <div class="section-label">卸甲服務</div>
+                <div class="card">
+                    <div class="removal-group">
+                        <button class="rem-btn active" onclick="setRem(0, this)">無</button>
+                        <button class="rem-btn" onclick="setRem(100, this)">本店</button>
+                        <button class="rem-btn" onclick="setRem(200, this)">他店</button>
+                    </div>
+                    <div style="font-size: 11px; color: #999; margin-bottom: 5px;">大鑽卸除 (+$50/指)</div>
+                    <div class="qty-group" style="width: fit-content;">
+                        <div class="qty-btn" onclick="changeExtra(-1)">-</div>
+                        <span id="extraRemQty" style="margin: 0 10px;">0</span>
+                        <div class="qty-btn" onclick="changeExtra(1)">+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-       <div id="dynamicItems">
-           </div>
-   </div>
+        <div class="section-label">其他</div>
+        <div class="card">
+            <div class="adj-row">
+                <span>預收定金</span>
+                <input type="number" id="deposit" class="adj-input" value="0" oninput="calc()">
+            </div>
+            <div class="adj-row">
+                <span>優惠折扣</span>
+                <input type="number" id="discount" class="adj-input" value="0" oninput="calc()">
+            </div>
+        </div>
+    </div>
 
-   <div class="card">
-       <div class="section-title">卸甲服務</div>
-       <div class="btn-group" id="removalType">
-           <button class="active" onclick="setRemoval(0, this)">無</button>
-           <button onclick="setRemoval(100, this)">本店續做 $100</button>
-           <button onclick="setRemoval(200, this)">他店續做 $200</button>
-       </div>
-       <div style="margin-top:15px; display:flex; justify-content: space-between; align-items: center;">
-           <span style="font-size:14px">立體飾品/大鑽卸除 (+$50/指)</span>
-           <div class="qty-control" style="width:100px;">
-               <div class="qty-btn" onclick="updateExtraRemoval(-1)">-</div>
-               <div id="extraRemovalQty">0</div>
-               <div class="qty-btn" onclick="updateExtraRemoval(1)">+</div>
-           </div>
-       </div>
-   </div>
+    <div class="footer-bar">
+        <button class="copy-btn" onclick="copyText()">
+            📋 複製文字
+        </button>
+        <div class="total-container" onclick="showDetail()">
+            <div class="total-label">看明細 > 尾款</div>
+            <div class="total-amount" id="finalTotal">$0</div>
+        </div>
+    </div>
 
-   <div class="card">
-       <div class="section-title">折扣 / 額外加價</div>
-       <input type="number" id="adjustment" placeholder="例如: -100 或 50" oninput="calculate()">
-   </div>
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div class="modal" id="modal">
+        <h3 style="margin-top:0">消費明細</h3>
+        <div id="detailContent" style="font-size: 14px; color: #666; line-height: 1.8;"></div>
+        <button onclick="closeModal()" style="width:100%; margin-top:20px; border:none; background:#a68b7c; color:#fff; padding:12px; border-radius:8px;">關閉</button>
+    </div>
 
-   <div class="container admin-section">
-       <details>
-           <summary>⚙️ 後台定價快速設定</summary>
-           <div class="card" style="font-size: 12px;">
-               <p>此處可供未來擴充功能使用（目前直接抓取上方陣列）</p>
-               <button onclick="alert('設定已儲存 (範例)')" class="main-btn">儲存修改</button>
-           </div>
-       </details>
-   </div>
-</div>
+    <script>
+        let basePrice = 0;
+        let baseName = '';
+        let remPrice = 0;
+        let extraRemCount = 0;
 
-<div class="sticky-footer">
-   <div>
-       <div style="font-size: 12px; color: #888;">預計總金額</div>
-       <div class="total-price" id="displayTotal">$0</div>
-   </div>
-   <div class="footer-btns">
-       <button class="main-btn" style="background:#f4eee8; color:#a68b7c" onclick="toggleModal(true)">👁️ 明細</button>
-       <button class="main-btn" onclick="copyBill()">📋 複製</button>
-   </div>
-</div>
+        function selectBase(el) {
+            document.querySelectorAll('.base-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            basePrice = parseInt(el.dataset.price);
+            baseName = el.innerText.split(' $')[0];
+            calc();
+        }
 
-<div class="modal-overlay" id="overlay" onclick="toggleModal(false)">
-   <div class="modal-content" id="modalContent" onclick="event.stopPropagation()">
-       <h3 style="text-align:center; margin-top:0;">Halle Lulu Nail 服務明細</h3>
-       <div id="billDetails"></div>
-       <hr style="border:none; border-top:1px dashed #ddd; margin: 15px 0;">
-       <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.2rem;">
-           <span>總計</span>
-           <span id="modalTotal">$0</span>
-       </div>
-       <button class="main-btn" style="width:100%; margin-top:20px; padding:15px;" onclick="toggleModal(false)">關閉</button>
-   </div>
-</div>
+        function addArt(name, price) {
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.innerHTML = `
+                <input type="text" value="${name}">
+                <input type="number" value="${price}" style="width:40px; text-align:right;" oninput="calc()">
+                <div class="qty-group">
+                    <div class="qty-btn" onclick="changeQty(this, -1)">-</div>
+                    <span class="qval" style="margin:0 5px">1</span>
+                    <div class="qty-btn" onclick="changeQty(this, 1)">+</div>
+                </div>
+                <span style="color:#ccc" onclick="this.parentElement.remove();calc()">✕</span>
+            `;
+            document.getElementById('artContainer').appendChild(div);
+            calc();
+        }
 
-<script>
-   let removalFee = 0;
-   let extraRemovalCount = 0;
+        function changeQty(btn, delta) {
+            let s = btn.parentElement.querySelector('.qval');
+            let v = parseInt(s.innerText) + delta;
+            if (v < 1) v = 1;
+            s.innerText = v;
+            calc();
+        }
 
-   // 點擊輸入框自動全選並滾動
-   function setupInputOptimization(el) {
-       el.addEventListener('focus', function() {
-           setTimeout(() => {
-               this.select();
-               this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-           }, 100);
-       });
-   }
+        function setRem(price, btn) {
+            remPrice = price;
+            document.querySelectorAll('.rem-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            calc();
+        }
 
-   function addItem(name = '', price = 0) {
-       const container = document.getElementById('dynamicItems');
-       const row = document.createElement('div');
-       row.className = 'item-row';
-       row.innerHTML = `
-           <input type="text" placeholder="項目" value="${name}" oninput="calculate()">
-           <input type="number" placeholder="單價" value="${price}" oninput="calculate()">
-           <div class="qty-control">
-               <div class="qty-btn" onclick="changeQty(this, -1)">-</div>
-               <div class="qty-num">1</div>
-               <div class="qty-btn" onclick="changeQty(this, 1)">+</div>
-           </div>
-           <div class="remove-btn" onclick="this.parentElement.remove(); calculate();">✕</div>
-       `;
-       container.appendChild(row);
+        function changeExtra(delta) {
+            extraRemCount += delta;
+            if (extraRemCount < 0) extraRemCount = 0;
+            document.getElementById('extraRemQty').innerText = extraRemCount;
+            calc();
+        }
 
-       // 綁定輸入優化
-       const inputs = row.querySelectorAll('input');
-       inputs.forEach(setupInputOptimization);
+        function calc() {
+            let total = basePrice;
+            document.querySelectorAll('.dynamic-row').forEach(row => {
+                let p = parseInt(row.querySelectorAll('input')[1].value) || 0;
+                let q = parseInt(row.querySelector('.qval').innerText);
+                total += (p * q);
+            });
+            total += remPrice + (extraRemCount * 50);
+            
+            let deposit = parseInt(document.getElementById('deposit').value) || 0;
+            let discount = parseInt(document.getElementById('discount').value) || 0;
+            
+            let final = total - deposit - discount;
+            document.getElementById('finalTotal').innerText = `$${final}`;
+            return { total, deposit, discount, final };
+        }
 
-       calculate();
-   }
+        function getBill() {
+            let res = `【Halle Lulu Nail 明細】\n`;
+            if (baseName) res += `項目: ${baseName} $${basePrice}\n`;
+            document.querySelectorAll('.dynamic-row').forEach(row => {
+                let n = row.querySelectorAll('input')[0].value;
+                let p = row.querySelectorAll('input')[1].value;
+                let q = row.querySelector('.qval').innerText;
+                res += `${n} x${q}: $${p*q}\n`;
+            });
+            if (remPrice > 0) res += `卸甲: $${remPrice}\n`;
+            if (extraRemCount > 0) res += `大鑽卸除 x${extraRemCount}: $${extraRemCount*50}\n`;
+            
+            let data = calc();
+            if (data.discount > 0) res += `優惠: -$${data.discount}\n`;
+            if (data.deposit > 0) res += `已付定金: -$${data.deposit}\n`;
+            res += `------------------\n`;
+            res += `應付尾款: $${data.final}`;
+            return res;
+        }
 
-   function changeQty(btn, delta) {
-       const numEl = btn.parentElement.querySelector('.qty-num');
-       let val = parseInt(numEl.innerText) + delta;
-       if (val < 1) val = 1;
-       numEl.innerText = val;
-       calculate();
-   }
+        function showDetail() {
+            document.getElementById('detailContent').innerText = getBill();
+            document.getElementById('overlay').style.display = 'block';
+            setTimeout(() => document.getElementById('modal').classList.add('show'), 10);
+        }
 
-   function setRemoval(fee, btn) {
-       removalFee = fee;
-       const btns = document.querySelectorAll('#removalType button');
-       btns.forEach(b => b.classList.remove('active'));
-       btn.classList.add('active');
-       calculate();
-   }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            setTimeout(() => document.getElementById('overlay').style.display = 'none', 300);
+        }
 
-   function updateExtraRemoval(delta) {
-       extraRemovalCount += delta;
-       if (extraRemovalCount < 0) extraRemovalCount = 0;
-       document.getElementById('extraRemovalQty').innerText = extraRemovalCount;
-       calculate();
-   }
+        function copyText() {
+            navigator.clipboard.writeText(getBill());
+            alert('已複製明細內容');
+        }
 
-   function calculate() {
-       let total = 0;
-
-       // 1. 基礎
-       const base = document.getElementById('baseService');
-       total += parseInt(base.value);
-
-       // 2. 動態造型
-       const rows = document.querySelectorAll('.item-row');
-       rows.forEach(row => {
-           const p = parseInt(row.querySelectorAll('input')[1].value) || 0;
-           const q = parseInt(row.querySelector('.qty-num').innerText) || 0;
-           total += (p * q);
-       });
-
-       // 3. 卸甲
-       total += removalFee;
-       total += (extraRemovalCount * 50);
-
-       // 4. 其他調整
-       const adj = parseInt(document.getElementById('adjustment').value) || 0;
-       total += adj;
-
-       document.getElementById('displayTotal').innerText = `$${total}`;
-       return total;
-   }
-
-   function getBillText() {
-       let bill = `【Halle Lulu Nail 明細】\n`;
-       const base = document.getElementById('baseService');
-       if (base.value != 0) {
-           bill += `• ${base.options[base.selectedIndex].dataset.name}: $${base.value}\n`;
-       }
-
-       const rows = document.querySelectorAll('.item-row');
-       rows.forEach(row => {
-           const n = row.querySelectorAll('input')[0].value || '自訂項目';
-           const p = row.querySelectorAll('input')[1].value || 0;
-           const q = row.querySelector('.qty-num').innerText;
-           bill += `• ${n} x${q}: $${p * q}\n`;
-       });
-
-       if (removalFee > 0) bill += `• 續做卸甲: $${removalFee}\n`;
-       if (extraRemovalCount > 0) bill += `• 大鑽飾卸除 x${extraRemovalCount}: $${extraRemovalCount * 50}\n`;
-
-       const adj = parseInt(document.getElementById('adjustment').value) || 0;
-       if (adj !== 0) bill += `• 調整/折扣: $${adj}\n`;
-
-       bill += `------------------\n總計: ${document.getElementById('displayTotal').innerText}`;
-       return bill;
-   }
-
-   function toggleModal(show) {
-       const overlay = document.getElementById('overlay');
-       const content = document.getElementById('modalContent');
-       const detailDiv = document.getElementById('billDetails');
-
-       if (show) {
-           const text = getBillText().replace(/\n/g, '<br>').replace(/•/g, '✨');
-           detailDiv.innerHTML = `<div style="line-height:2; font-size:15px;">${text}</div>`;
-           document.getElementById('modalTotal').innerText = document.getElementById('displayTotal').innerText;
-           overlay.style.display = 'block';
-           setTimeout(() => content.classList.add('show'), 10);
-       } else {
-           content.classList.remove('show');
-           setTimeout(() => overlay.style.display = 'none', 300);
-       }
-   }
-
-   function copyBill() {
-       const text = getBillText();
-       navigator.clipboard.writeText(text).then(() => {
-           alert('明細已複製，可直接傳送給客人！');
-       });
-   }
-
-   // 初始化自動優化
-   setupInputOptimization(document.getElementById('adjustment'));
-</script>
-
+        function toggleSettings() {
+            alert('後台設定功能：您可以修改代碼中的 base-list 來永久更改價格。');
+        }
+    </script>
 </body>
-
 </html>
-
-
-
-

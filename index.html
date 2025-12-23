@@ -119,7 +119,7 @@
 <body>
 
     <div class="app-header">
-        <div class="app-title">HalleLulu•nail</div>
+        <div class="app-title">HalleLulu.nail</div>
         <div class="settings-btn" onclick="toggleAdmin(true)">⚙️</div>
     </div>
 
@@ -142,8 +142,11 @@
             <div class="section-header">卸甲</div>
             <div class="toggle-group">
                 <button class="toggle-btn active" onclick="setRemoval(0, this)">無 $0</button>
-                <button class="toggle-btn" onclick="setRemoval(200, this)">本店 $200</button>
-                <button class="toggle-btn" onclick="setRemoval(300, this)">他店 $300</button>
+                <button class="toggle-btn" onclick="setRemoval(100, this)">本店卸甲/續作 $100</button>
+                <button class="toggle-btn" onclick="setRemoval(200, this)">他店卸甲/續作 $200</button>
+                <button class="toggle-btn" onclick="setRemoval(200, this)">本店卸甲/不續作 $200</button>
+                <button class="toggle-btn" onclick="setRemoval(300, this)">他店卸甲/不續作 $300</button>
+
             </div>
             <div class="item-row" style="border:none">
                 <span style="font-size:14px; color:#666">他店立體卸除 (+$50/指)</span>
@@ -209,13 +212,17 @@
     <script>
         // 初始設定數據
         let baseData = [
-            {name: "單色/跳色", price: 600},
-            {name: "貓眼/鏡面", price: 700},
-            {name: "漸層/法式", price: 800}
+            {name: "透明建甲", price: 500},
+            {name: "單色", price: 600},
+            {name: "貓眼·鏡面", price: 700},
+            {name: "漸層·法式", price: 800},
+            {name: "造型款式", price: 850}
         ];
         let artData = [
+            {name: "延甲", price: 100},
             {name: "暈染", price: 80},
             {name: "手繪", price: 50},
+            {name: "貼鑽", price: 50},
             {name: "貼紙", price: 25}
         ];
 
@@ -368,19 +375,19 @@
 
         // 報價複製與明細
         function getBillStr() {
-            let res = `✨ Halle Lulu Nail 明細 ✨\n`;
-            if (selBase.name) res += `● ${selBase.name}: $${selBase.price}\n`;
+            let res = `✨ HalleLulu·Nail 明細 ✨\n`;
+            if (selBase.name) res += `· ${selBase.name}: $${selBase.price}\n`;
             document.querySelectorAll('#art-list .item-row').forEach(row => {
                 let n = row.querySelector('input').value;
                 let p = row.querySelectorAll('input')[1].value;
                 let q = row.querySelector('.qv').innerText;
-                res += `● ${n} x${q}: $${p*q}\n`;
+                res += `· ${n} x${q}: $${p*q}\n`;
             });
-            if (remFee > 0) res += `● 卸甲服務: $${remFee}\n`;
-            if (extraRem > 0) res += `● 立體卸除 x${extraRem}: $${extraRem*50}\n`;
+            if (remFee > 0) res += `·卸甲服務: $${remFee}\n`;
+            if (extraRem > 0) res += `·立體卸除 x${extraRem}: $${extraRem*50}\n`;
             let d = calc();
-            if (d.discount > 0) res += `● 優惠活動: -$${d.discount}\n`;
-            if (d.deposit > 0) res += `● 預收定金: -$${d.deposit}\n`;
+            if (d.discount > 0) res += `·優惠活動: -$${d.discount}\n`;
+            if (d.deposit > 0) res += `·預收定金: -$${d.deposit}\n`;
             res += `------------------\n💰 應付尾款: ${document.getElementById('final-total').innerText}`;
             return res;
         }
@@ -405,4 +412,6 @@
     </script>
 </body>
 </html>
+
+
 
